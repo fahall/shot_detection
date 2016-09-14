@@ -13,8 +13,8 @@ WAIT_TIME = 0.5
 DEFAULT_NUM_SEGMENTS = 10
 FRAME_CHUNK_SIZE = 10000
 
-CLEANUP = True #Delete images when finished
-DECOMPOSE = True #Convert movie file into images
+CLEANUP = False #Delete images when finished
+DECOMPOSE = False #Convert movie file into images
 
 
 ######## TRAIN & TEST ONLY ########

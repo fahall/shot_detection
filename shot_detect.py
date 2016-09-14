@@ -209,8 +209,8 @@ def run_movie_pipeline(source_package, output_dir = None):
     logging.info("movie file path is {0}".format(movie_file_path))
     logging.debug(movie_file_path)
     
-    #num_total_frames = utils.find_num_frames(movie_file_path)
-    num_total_frames = 15992
+    num_total_frames = utils.find_num_frames(movie_file_path)
+    #num_total_frames = 15992
     logging.info("number of frames is {0}".format(num_total_frames))
 
     task = 'Decompose'
@@ -234,9 +234,9 @@ def run_movie_pipeline(source_package, output_dir = None):
 
     task = 'Cleanup'
     if config.CLEANUP:
-        report_start(task)
+        utils.report_start(task)
         shutil.rmtree(temp_frame_dir)
-        report_end(task)
+        utils.report_end(task)
     else:
         utils.report_skip(task)
     
