@@ -19,14 +19,6 @@ from . import utils
 
 # # Globals
 
-def make_std_dev_thresh_func(multiplier):
-    def std_dev_thresh_func(x, a):
-        std_dev = np.std(x)
-        return multiplier*std_dev
-    return std_dev_thresh_func
-
-
-THRESH_FUNC = make_std_dev_thresh_func(config.THRESH_MULTIPLIER)
 
 
 # # Functions
@@ -133,8 +125,9 @@ def process_shots(source_video_frame_directory, start_marker, end_marker,
     lmt = config.LOCAL_MAXIMA_THRESH * max(color_hist_diffs)
     color_peaks = utils.local_maxima(smooth_color_hists)
     color_inds = [i for i in range(len(color_peaks)) if color_peaks[i]]
-    high_color_peaks = utils.filter_local_maxima(smooth_color_hists, color_inds, lmt,
-                                                 thresh_func=None)
+    high_color_peaks = utils.filter_local_maxima(smooth_color_hists, color_inds,
+                                                 lmt,
+                                                 thresh_func=local_maxima_thresh_func)
 
     #high_color_peaks = [i for i in range(len(color_hist_diffs))
     #                    if color_hist_diffs[i] > lmt]
@@ -152,7 +145,7 @@ def process_shots(source_video_frame_directory, start_marker, end_marker,
     
 def stream_shots_for_ext(source_video_frame_directory, total_frames,
                          color_space=1, hist_bins=16, thresh=61,
-                         local_maxima_thresh_func = THRESH_FUNC):
+                         local_maxima_thresh_func = config.THRESH_FUNC):
     
     get_frames = lambda : [int(os.path.splitext(f)[0]) for f in
                            os.listdir(source_video_frame_directory)]
@@ -221,7 +214,8 @@ def run_movie_pipeline(source_package, output_dir = None):
     if config.DECOMPOSE:
 
         utils.report_start(task)
-        ffmpeg_thread = Thread(target=utils.ffmpeg_call, args=(movie_file_path, ))
+        ffmpeg_thread = T
+        hread(target=utils.ffmpeg_call, args=(movie_file_path, ))
         # Thread will terminate abruptly if main thread is stopped
         ffmpeg_thread.daemon = True    
         ffmpeg_thread.start()
