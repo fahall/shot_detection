@@ -4,6 +4,7 @@ import os
 import glob
 import subprocess
 import logging
+import csv
 import cv2
 from scipy.spatial import distance
 def undo_ground_offset(ground):
@@ -52,6 +53,18 @@ def batch_get_shots(directory):
         
     return all_shots
 
+def read_csv(csv_filename, path):
+  name, ext = os.path.splitext(csv_filename)
+  with open(os.path.join(path, csv_filename), 'rU') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    results = [row for row in reader]
+  return results
+
+def write_csv(data, csv_filename, path):
+  with open(os.path.join(path, csv_filename), 'w') as csv_file:
+    writer = csv.writer(csv_file, delimiter = ',')
+    for row in data:
+      writer.writerow(row)
 
 def get_shots_csv(csv_file):
     shots = {}
@@ -129,10 +142,10 @@ def print_rmtree_error():
 def stitch_results(result1, result2):
     results = {}
     results['shots'] = np.concatenate((result1['shots'], result2['shots']))
-    '''
-    results['smooth'] = np.concatenate((result1['smooth'], result2['smooth']))
     results['hists'] = np.concatenate((result1['hists'], result2['hists']))
     results['data'] = np.concatenate((result1['data'], result2['data']))
+    '''
+    results['smooth'] = np.concatenate((result1['smooth'], result2['smooth']))
     '''
     
     return results
