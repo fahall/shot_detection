@@ -35,7 +35,7 @@ def local_maxima(a):
     peaks = np.r_[True, a[1:] > a[:-1]] & np.r_[a[:-1] > a[1:], True]
     return peaks
 
-def filter_local_maxima(x, a, height, thresh_func = None):
+def filter_local_maxima(x, a, height, thresh_func=None):
     if thresh_func:
         height = thresh_func(x, a)  
     peaks = [index for index in a if index == 0 or\
@@ -141,12 +141,8 @@ def print_rmtree_error():
 
 def stitch_results(result1, result2):
     results = {}
-    results['shots'] = np.concatenate((result1['shots'], result2['shots']))
     results['hists'] = np.concatenate((result1['hists'], result2['hists']))
     results['data'] = np.concatenate((result1['data'], result2['data']))
-    '''
-    results['smooth'] = np.concatenate((result1['smooth'], result2['smooth']))
-    '''
     
     return results
 
