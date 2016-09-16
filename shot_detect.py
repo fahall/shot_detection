@@ -209,8 +209,8 @@ def run_movie_pipeline(source_package, output_dir = None):
     logging.info("movie file path is {0}".format(movie_file_path))
     logging.debug(movie_file_path)
     
-    num_total_frames = utils.find_num_frames(movie_file_path)
-    #num_total_frames = 154992
+    #num_total_frames = utils.find_num_frames(movie_file_path)
+    num_total_frames = 154992
     stars = '*' * 80
     logging.warning(stars + 'Using fixed num_total frames' + stars )
     logging.info("number of frames is {0}".format(num_total_frames))
