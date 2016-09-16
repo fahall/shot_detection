@@ -15,8 +15,6 @@ from . import unit_tests
 from . import plot_shot
 from . import utils
 
-
-
 # # Globals
 
 def make_std_dev_thresh_func(multiplier):
@@ -141,10 +139,10 @@ def process_shots(source_video_frame_directory, start_marker, end_marker,
     
     results = {}
     results['shots'] = start_marker + high_color_peaks
-    '''
-    results['smooth'] = smooth_color_hists
     results['hists'] = color_hists
     results['data'] = color_hist_diffs
+    '''
+    results['smooth'] = smooth_color_hists
     results['thresh'] = lmt
     '''
     return results 
@@ -159,7 +157,7 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
 
     
     start_marker = 1
-    end_marker = config.FRAME_CHUNK_SIZE + start_marker
+    end_marker = min(config.FRAME_CHUNK_SIZE + start_marker, total_frames)
     end = total_frames
 
     done = False
@@ -232,9 +230,7 @@ def run_movie_pipeline(source_package, output_dir = None):
     
     results = stream_shots_for_ext(temp_frame_dir, num_total_frames)
         
-    output_txt_file = os.path.join(output_dir,config.OUTPUT_TXT_FNAME)
-    output_arr = np.sort(results['shots'])
-    np.savetxt(output_txt_file, output_arr, fmt="%06d")
+    write_output_text_file(results, output_dir)    
 
     task = 'Cleanup'
     if config.CLEANUP:
@@ -247,7 +243,21 @@ def run_movie_pipeline(source_package, output_dir = None):
     return
 
 
+def write_output_text_file(results, output_dir):
+    output_txt_file = os.path.join(output_dir,config.OUTPUT_TXT_FNAME)
+    output_arr = np.sort(results['shots'])
+    np.savetxt(output_txt_file, output_arr, fmt="%06d")
 
+OUTPUT_CSV_FNAME = "output.csv"
+def write_output_csv_file(results, output_dir):
+  shots = np.sort(results['shots'])
+  hists = results['hists']
+  diffs = results['data']
+  data = []
+  for shot in shots:
+    first_part = np.array([shot, diffs[shot]])
+    data.append(list(first_part) + list(hists[shot]))
+  utils.write_csv(data, OUTPUT_CSV_FNAME, output_dir)
 
 '''
 # EXAMPLE TEST CODE
