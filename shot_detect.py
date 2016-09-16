@@ -130,11 +130,11 @@ def process_shots(source_video_frame_directory, start_marker, end_marker,
 
     smooth_color_hists = color_hist_diffs
     
-    lmt = local_maxima_thresh * max(color_hist_diffs)
+    lmt = config.LOCAL_MAXIMA_THRESH * max(color_hist_diffs)
     color_peaks = utils.local_maxima(smooth_color_hists)
     color_inds = [i for i in range(len(color_peaks)) if color_peaks[i]]
     high_color_peaks = utils.filter_local_maxima(smooth_color_hists, color_inds, lmt,
-                                           thresh_func=local_maxima_thresh_func)
+                                                 thresh_func=None)
 
     #high_color_peaks = [i for i in range(len(color_hist_diffs))
     #                    if color_hist_diffs[i] > lmt]
@@ -160,7 +160,7 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
     
     start_marker = 1
     end_marker = config.FRAME_CHUNK_SIZE + start_marker
-    end = total_frames + 1
+    end = total_frames
 
     done = False
     
@@ -172,8 +172,10 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
             if end_marker == end:
                 # guaranteed to get all the frames now.
                 done = True
+
             next_result = process_shots(source_video_frame_directory,
-                                        start_marker, end_marker)
+                                        start_marker, end_marker,
+                                        local_maxima_thresh_func = local_maxima_thresh_func)
             logging.info("processed shots from [{0}, {1})".format(start_marker,
                                                            end_marker))
             prev_result = next_result if not prev_result else \
@@ -209,8 +211,10 @@ def run_movie_pipeline(source_package, output_dir = None):
     logging.info("movie file path is {0}".format(movie_file_path))
     logging.debug(movie_file_path)
     
-    num_total_frames = utils.find_num_frames(movie_file_path)
-    #num_total_frames = 15992
+    #num_total_frames = utils.find_num_frames(movie_file_path)
+    num_total_frames = 154992
+    stars = '*' * 80
+    logging.warning(stars + 'Using fixed num_total frames' + stars )
     logging.info("number of frames is {0}".format(num_total_frames))
 
     task = 'Decompose'

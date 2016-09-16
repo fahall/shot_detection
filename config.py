@@ -21,3 +21,4 @@ DECOMPOSE = False #Convert movie file into images
 RESOURCES_PATH = "/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/frames/"
 GROUND_DIR = '/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/classification_shot/ground_truth_0_index'
 TEST_PATH = '/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/test_dataset'
+LOCAL_MAXIMA_THRESH = 0.1
