@@ -224,8 +224,9 @@ def run_movie_pipeline(source_package, output_dir = None):
     
     results = stream_shots_for_ext(temp_frame_dir, num_total_frames)
         
-    write_output_text_file(results, output_dir)    
-
+    utils.write_output_text_file(results, output_dir)    
+    utils.write_output_csv_file(results, output_dir)
+    
     task = 'Cleanup'
     if config.CLEANUP:
         utils.report_start(task)
@@ -236,22 +237,6 @@ def run_movie_pipeline(source_package, output_dir = None):
     
     return
 
-
-def write_output_text_file(results, output_dir):
-    output_txt_file = os.path.join(output_dir,config.OUTPUT_TXT_FNAME)
-    output_arr = np.sort(results['shots'])
-    np.savetxt(output_txt_file, output_arr, fmt="%06d")
-
-OUTPUT_CSV_FNAME = "output.csv"
-def write_output_csv_file(results, output_dir):
-  shots = np.sort(results['shots'])
-  hists = results['hists']
-  diffs = results['data']
-  data = []
-  for shot in shots:
-    first_part = np.array([shot, diffs[shot]])
-    data.append(list(first_part) + list(hists[shot]))
-  utils.write_csv(data, OUTPUT_CSV_FNAME, output_dir)
 
 '''
 # EXAMPLE TEST CODE

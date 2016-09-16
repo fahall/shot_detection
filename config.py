@@ -8,6 +8,7 @@ def make_std_dev_thresh_func(multiplier):
 
 
 OUTPUT_TXT_FNAME = 'shots.txt'
+OUTPUT_CSV_FNAME = 'shots.csv'
 SOURCE_FRAME_DIR = 'temp_frames'
 
 FRAME_FNAME_FORMAT = '%06d.jpg'

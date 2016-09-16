@@ -185,3 +185,19 @@ def get_movie_file(directory):
     for f in os.listdir(directory):
         if any(ext in f for ext in config.FILE_TYPES):
             return f
+
+
+def write_output_text_file(results, output_dir):
+    output_txt_file = os.path.join(output_dir,config.OUTPUT_TXT_FNAME)
+    output_arr = np.sort(results['shots'])
+    np.savetxt(output_txt_file, output_arr, fmt="%06d")
+
+def write_output_csv_file(results, output_dir):
+  shots = np.sort(results['shots'])
+  hists = results['hists']
+  diffs = results['data']
+  data = []
+  for shot in shots:
+    first_part = np.array([shot, diffs[shot]])
+    data.append(list(first_part) + list(hists[shot]))
+  utils.write_csv(data, config.OUTPUT_CSV_FNAME, output_dir)
