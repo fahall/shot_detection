@@ -17,6 +17,20 @@ from . import utils
 
 # # Globals
 
+def make_std_dev_thresh_func(multiplier):
+    def std_dev_thresh_func(color_hist_diffs, a):
+        std_dev = np.std(color_hist_diffs)
+        return multiplier*std_dev
+    return std_dev_thresh_func
+
+def make_max_thresh_func(multiplier):
+    def max_thresh_func(color_hist_diffs, a):
+        return multiplier*max(color_hist_diffs)
+    return max_thresh_func
+
+STD_DEV_THRESH_FUNC = make_std_dev_thresh_func(config.THRESH_MULTIPLIER)
+MAX_THRESH_FUNC = make_max_thresh_func(config.LOCAL_MAXIMA_THRESH)
+
 
 
 # # Functions
@@ -62,6 +76,7 @@ def shots_for_ext(ext, color_space=1, local_maxima_thresh=0.05, hist_bins=16,
     
 
 
+
 def run_detector(resources_path, thresh = 61, local_maxima_thresh = 0.05,\
                  local_maxima_thresh_func=None, n_bins = 4, color_space = 1,\
                  ignore_these = config.IGNORES, limit_to = [], exts = None,
@@ -104,9 +119,9 @@ def run_detector(resources_path, thresh = 61, local_maxima_thresh = 0.05,\
 
 # # Detection Work Space
 
-def process_shots(source_video_frame_directory, start_marker, end_marker,
-                  color_space=1, local_maxima_thresh=0.05, hist_bins=16,
-                  thresh=61, local_maxima_thresh_func = None):
+def process_shots(source_video_frame_directory, start_marker, end_marker,\
+                  color_space=1, hist_bins=16,\
+		  thresh=61):
     
     fn_prefix, fn_suffix = source_video_frame_directory, config.FRAME_FNAME_FORMAT
     fn = os.path.join(fn_prefix, fn_suffix)
@@ -115,35 +130,30 @@ def process_shots(source_video_frame_directory, start_marker, end_marker,
     color_hists = utils.color_histograms(fn,n, n_bins = hist_bins,
                                    first_frame=first_frame)
     
-    
     color_hist_diffs = utils.get_hist_diffs(color_hists)
 
-    smooth_color_hists = color_hist_diffs
-    
-    lmt = config.LOCAL_MAXIMA_THRESH * max(color_hist_diffs)
-    color_peaks = utils.local_maxima(smooth_color_hists)
-    color_inds = [i for i in range(len(color_peaks)) if color_peaks[i]]
-    high_color_peaks = utils.filter_local_maxima(smooth_color_hists, color_inds,
-                                                 lmt,
-                                                 thresh_func=local_maxima_thresh_func)
-
-    #high_color_peaks = [i for i in range(len(color_hist_diffs))
-    #                    if color_hist_diffs[i] > lmt]
-    
     results = {}
-    results['shots'] = start_marker + high_color_peaks
     results['hists'] = color_hists
     results['data'] = color_hist_diffs
-    '''
-    results['smooth'] = smooth_color_hists
-    results['thresh'] = lmt
-    '''
     return results 
 
+def post_process_results(results, local_maxima_thresh_func):
+    color_hist_diffs = results['data']
+
+    color_peaks = utils.local_maxima(color_hist_diffs)
+    color_inds = [i for i in range(len(color_peaks)) if color_peaks[i]]
+    lmt = None
+    high_color_peaks = utils.filter_local_maxima(color_hist_diffs, color_inds, lmt,
+                                           thresh_func=local_maxima_thresh_func)
+    # NOTE: off by one?
+    results['shots'] = high_color_peaks
+
+    return results
     
 def stream_shots_for_ext(source_video_frame_directory, total_frames,
                          color_space=1, hist_bins=16, thresh=61,
-                         local_maxima_thresh_func = config.THRESH_FUNC):
+                         local_maxima_thresh_func = MAX_THRESH_FUNC):
+
     
     get_frames = lambda : [int(os.path.splitext(f)[0]) for f in
                            os.listdir(source_video_frame_directory)]
@@ -165,8 +175,7 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
                 done = True
 
             next_result = process_shots(source_video_frame_directory,
-                                        start_marker, end_marker,
-                                        local_maxima_thresh_func = local_maxima_thresh_func)
+                                        start_marker, end_marker)
             logging.info("processed shots from [{0}, {1})".format(start_marker,
                                                            end_marker))
             prev_result = next_result if not prev_result else \
@@ -178,8 +187,11 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
             logging.debug('WORKING ON: ' + str(start_marker))
             end_marker = min(end, end_marker + config.FRAME_CHUNK_SIZE)
         time.sleep(config.WAIT_TIME);
+
+    filtered_results = post_process_results(prev_result,
+                                             local_maxima_thresh_func)
         
-    return prev_result
+    return filtered_results
 
 
 def run_movie_pipeline(source_package, output_dir = None):
@@ -224,9 +236,11 @@ def run_movie_pipeline(source_package, output_dir = None):
     
     results = stream_shots_for_ext(temp_frame_dir, num_total_frames)
         
+
     utils.write_output_text_file(results, output_dir)    
     utils.write_output_csv_file(results, output_dir)
     
+
     task = 'Cleanup'
     if config.CLEANUP:
         utils.report_start(task)
@@ -236,7 +250,6 @@ def run_movie_pipeline(source_package, output_dir = None):
         utils.report_skip(task)
     
     return
-
 
 '''
 # EXAMPLE TEST CODE
