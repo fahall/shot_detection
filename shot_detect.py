@@ -32,6 +32,7 @@ STD_DEV_THRESH_FUNC = make_std_dev_thresh_func(config.THRESH_MULTIPLIER)
 MAX_THRESH_FUNC = make_max_thresh_func(config.LOCAL_MAXIMA_THRESH)
 
 
+
 # # Functions
 # takes in a file name, and number of images in the file,
 # and number of bins for the histogram
@@ -152,6 +153,7 @@ def post_process_results(results, local_maxima_thresh_func):
 def stream_shots_for_ext(source_video_frame_directory, total_frames,
                          color_space=1, hist_bins=16, thresh=61,
                          local_maxima_thresh_func = MAX_THRESH_FUNC):
+
     
     get_frames = lambda : [int(os.path.splitext(f)[0]) for f in
                            os.listdir(source_video_frame_directory)]
@@ -185,8 +187,11 @@ def stream_shots_for_ext(source_video_frame_directory, total_frames,
             logging.debug('WORKING ON: ' + str(start_marker))
             end_marker = min(end, end_marker + config.FRAME_CHUNK_SIZE)
         time.sleep(config.WAIT_TIME);
+
+    filtered_results = post_process_results(prev_result,
+                                             local_maxima_thresh_func)
         
-    return post_process_results(prev_result, local_maxima_thresh_func)
+    return filtered_results
 
 
 def run_movie_pipeline(source_package, output_dir = None):
@@ -219,7 +224,8 @@ def run_movie_pipeline(source_package, output_dir = None):
     if config.DECOMPOSE:
 
         utils.report_start(task)
-        ffmpeg_thread = Thread(target=utils.ffmpeg_call, args=(movie_file_path, ))
+        ffmpeg_thread = T
+        hread(target=utils.ffmpeg_call, args=(movie_file_path, ))
         # Thread will terminate abruptly if main thread is stopped
         ffmpeg_thread.daemon = True    
         ffmpeg_thread.start()
@@ -230,7 +236,10 @@ def run_movie_pipeline(source_package, output_dir = None):
     
     results = stream_shots_for_ext(temp_frame_dir, num_total_frames)
         
-    write_output_csv_file(results, output_dir)    
+
+    utils.write_output_text_file(results, output_dir)    
+    utils.write_output_csv_file(results, output_dir)
+    
 
     task = 'Cleanup'
     if config.CLEANUP:
@@ -241,23 +250,6 @@ def run_movie_pipeline(source_package, output_dir = None):
         utils.report_skip(task)
     
     return
-
-def write_output_text_file(results, output_dir):
-    output_txt_file = os.path.join(output_dir,config.OUTPUT_TXT_FNAME)
-    output_arr = np.sort(results['shots'])
-    np.savetxt(output_txt_file, output_arr, fmt="%06d")
-
-OUTPUT_CSV_FNAME = "output.csv"
-def write_output_csv_file(results, output_dir):
-
-  shots = results['shots']
-  hists = results['hists']
-  diffs = results['data']
-  data = []
-  for shot in shots:
-    first_part = np.array([shot, diffs[shot]])
-    data.append(list(first_part) + list(hists[shot]))
-  utils.write_csv(data, OUTPUT_CSV_FNAME, output_dir)
 
 '''
 # EXAMPLE TEST CODE

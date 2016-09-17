@@ -1,6 +1,14 @@
 import sys
 
+def make_std_dev_thresh_func(multiplier):
+    def std_dev_thresh_func(x, a):
+        std_dev = np.std(x)
+        return multiplier*std_dev
+    return std_dev_thresh_func
+
+
 OUTPUT_TXT_FNAME = 'shots.txt'
+OUTPUT_CSV_FNAME = 'shots.csv'
 SOURCE_FRAME_DIR = 'temp_frames'
 
 FRAME_FNAME_FORMAT = '%06d.jpg'
@@ -22,3 +30,5 @@ RESOURCES_PATH = "/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/fram
 GROUND_DIR = '/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/classification_shot/ground_truth_0_index'
 TEST_PATH = '/Users/alexhall/Documents/filmGrammar/deepak_ground_truth/test_dataset'
 LOCAL_MAXIMA_THRESH = 0.1
+VAL = 0.5
+THRESH_FUNC = lambda x, a : VAL
