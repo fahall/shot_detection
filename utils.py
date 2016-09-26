@@ -188,12 +188,22 @@ def write_output_text_file(results, output_dir):
     output_arr = np.sort(results['shots'])
     np.savetxt(output_txt_file, output_arr, fmt="%06d")
 
+def normalize_list(diff_list):
+    maxima = max(diff_list)
+    norms = [d/maxima for d in diff_list]
+    return norms
+    
+
 def write_output_csv_file(results, output_dir):
-  shots = np.sort(results['shots'])
-  hists = results['hists']
-  diffs = results['data']
-  data = []
-  for shot in shots:
-    first_part = np.array([shot, diffs[shot]])
-    data.append(list(first_part) + list(hists[shot]))
-  write_csv(data, config.OUTPUT_CSV_FNAME, output_dir)
+  
+    shots = np.sort(results['shots'])
+    hists = results['hists']
+    diffs = results['data']
+    norms = normalize_list(diffs)
+    
+    data = []
+    for shot in shots:
+        first_part = np.array([shot, norms[shot], diffs[shot]])
+        data.append(list(first_part) + list(hists[shot]))
+        
+    write_csv(data, config.OUTPUT_CSV_FNAME, output_dir)
