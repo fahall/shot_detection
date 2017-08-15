@@ -1,11 +1,14 @@
 ## shot_detect
+Multithreaded color-histogram based shot-detection. Takes as input a directory of movies and outputs a csv file for each movie with shot-boundary candidates. Each candidate is scored based on the algorithm's confidence that it is a shot boundary.  
 
 #### External Dependencies
 OpenCV
+
 ffmpeg (tested on v3.3.3)
 
 #### Python Dependencies
 Python 3.6 (earlier versions not tested)
+
 See requirements.txt
 
 #### Input
