@@ -9,8 +9,9 @@ Python 3.6 (earlier versions not tested)
 See requirements.txt
 
 #### Input
-input_directory: path to directory containing 1 or more video files
-output_directory: path to directory in which to store output csvs (defaults to input directory if no arg passed)
+`input_directory`: path to directory containing 1 or more video files
+
+`output_directory`: path to directory in which to store output csvs (defaults to input directory if no arg passed)
 
 #### Output
 csv file where each row represents a potential boundary.
